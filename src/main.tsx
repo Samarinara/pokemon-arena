@@ -1,0 +1,12 @@
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+import "nes.css/css/nes.min.css";
+import "@fontsource/press-start-2p";
+
+
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);
