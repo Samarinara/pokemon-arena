@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+/target
+cred.json
+tracing.log
+host_key.pem
