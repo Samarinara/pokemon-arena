@@ -1,6 +1,6 @@
-// contexts/AuthContext.tsx
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { User, AuthContextType, AuthResult, LoginCredentials } from './types';
+import { User, AuthContextType, AuthResult } from './types';
+import { invoke } from '@tauri-apps/api/core';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -17,43 +17,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const checkAuthStatus = async (): Promise<void> => {
-    try {
-      const response = await fetch('/api/auth/me', {
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        const userData: User = await response.json();
-        setUser(userData);
-      } else {
-        setUser(null);
-      }
-    } catch (error) {
-      console.error('Auth check failed:', error);
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
+    setLoading(false);
   };
 
-  const login = async (email: string, password: string): Promise<AuthResult> => {
+  const login = async (email: string, key: string): Promise<AuthResult> => {
     try {
-      const credentials: LoginCredentials = { email, password };
-      
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(credentials)
-      });
-      
-      if (response.ok) {
-        const userData: User = await response.json();
-        setUser(userData);
+      const verified = await invoke("verify_key", { email, key });
+      if (verified) {
+        const user = { id: email, email, name: email };
+        setUser(user);
         return { success: true };
       } else {
-        const errorText = await response.text();
-        return { success: false, error: errorText };
+        return { success: false, error: "Invalid key" };
       }
     } catch (error) {
       return { 
@@ -64,16 +39,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = async (): Promise<void> => {
-    try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include'
-      });
-    } catch (error) {
-      console.error('Logout failed:', error);
-    } finally {
-      setUser(null);
-    }
+    setUser(null);
   };
 
   const value: AuthContextType = {

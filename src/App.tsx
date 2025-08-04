@@ -1,27 +1,41 @@
-import { useState } from "react";
-import { Route, BrowserRouter, Routes, Navigate } from 'react-router-dom';
-import { invoke } from "@tauri-apps/api/core";
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import "./App.css";
+import AuthMenu from './email-auth/AuthMenu';
+import { AuthProvider, useAuth } from './email-auth/authcontext';
+import { ProtectedRoute } from './email-auth/protected-route';
 import "nes.css/css/nes.min.css";
 
-
-
-
 function App() {
-  return(
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
+  );
+}
+
+function AppContent() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
     <>
       <div>
-      <BrowserRouter>
+        <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Navigate to="/home" replace />} />
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/search" element={<SearchPage />} />
-            <Route path="/blog/:handle" element={<BlogPage />} />
-            <Route path="/blog/post/:handle/:uri" element={<PostPage />} />
-            <Route path="/profile/:handle" element={<ProfilePage />} />
-            <Route path="*" element={<Navigate to="/home" replace />} />
+            {user ? (
+              <>
+                <Route path="/" element={<Navigate to="/home" replace />} />
+                <Route path="/home" element={<ProtectedRoute><div>Home</div></ProtectedRoute>} />
+                <Route path="*" element={<Navigate to="/home" replace />} />
+              </>
+            ) : (
+              <Route path="*" element={<AuthMenu />} />
+            )}
           </Routes>
-      </BrowserRouter>
+        </BrowserRouter>
       </div>
       <div className="grid-bg"></div>
     </>

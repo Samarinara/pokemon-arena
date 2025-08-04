@@ -19,6 +19,7 @@ struct EmailPayload<'a> {
 
 fn send_email_to_server(email: &str, server_url: &str) -> Result<(), String> {
     let key = generate_key();
+    println!("Generated key for {}: {}", email, key);
     let payload = EmailPayload { email, key: &key };
     let client = Client::new();
     let response = client.post(server_url)
@@ -27,22 +28,49 @@ fn send_email_to_server(email: &str, server_url: &str) -> Result<(), String> {
     println!("Email sent to {}", email);
     
     match response.status().as_str()  {
-        "200 OK" => { println!("Email sent successfully."); return Ok(())},
+        "200" => { println!("Email sent successfully."); return Ok(())},
         _ => { println!("Failed to send email. Status: {}", response.status()); return Err(response.text().unwrap());}
     }
 }  
 
 fn generate_key() -> String {
     let mut rng = rand::thread_rng();
-    // generates a random number from 0 (inclusive) to 156 (exclusive)
     let number = rng.gen_range(0..151);
     let pkmn = pokemon_indexer::get_pokemon_by_number(number);
 
     let mut rng2 = rand::thread_rng();
-    // generates a random number from 0 (inclusive) to 156 (exclusive)
     let number2 = rng2.gen_range(0..151);
     let pkmn2 = pokemon_indexer::get_pokemon_by_number(number2);
 
+    let mut rng3 = rand::thread_rng();
+    let number3 = rng3.gen_range(0..151);
+    let pkmn3 = pokemon_indexer::get_pokemon_by_number(number3);
 
-    return (pkmn + " " + &pkmn2).to_string()
+    return (pkmn + " " + &pkmn2 + " " + &pkmn3).to_string()
+}
+
+#[derive(Serialize)]
+struct VerifyPayload<'a> {
+    email: &'a str,
+    key: &'a str,
+}
+
+pub fn verify_key(email: &str, key: &str) -> Result<bool, String> {
+    println!("Verifying key for {}: {}", email, key);
+    let payload = VerifyPayload { email, key };
+    let client = Client::new();
+    let response = client.post("https://pokemon-arena.thescandalsthatwere.com/verify_email")
+        .json(&payload)
+        .send()
+        .map_err(|e| e.to_string())?;
+
+    let status = response.status();
+    let text = response.text().unwrap_or_else(|_| "<no response text>".to_string());
+    println!("Verification response: status = {}, text = {}", status, text);
+
+    if status.is_success() {
+        Ok(true)
+    } else {
+        Ok(false)
+    }
 }

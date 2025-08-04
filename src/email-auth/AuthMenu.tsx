@@ -1,24 +1,30 @@
 import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+import "../App.css";
 import "nes.css/css/nes.min.css";
 import { useState } from "react";
+import VerifyKeyMenu from "./VerifyKeyMenu";
 
 function AuthMenu(){
-    InputEmail();
+    const [email, setEmail] = useState("");
+    const [emailSent, setEmailSent] = useState(false);
+
+    if (emailSent) {
+        return <VerifyKeyMenu email={email} />;
+    } else {
+        return <InputEmail setEmailSent={setEmailSent} setEmail={setEmail} email={email}/>;
+    }
 }
 
-function InputEmail() {
+function InputEmail({ setEmailSent, setEmail, email }: { setEmailSent: (sent: boolean) => void, setEmail: (email: string) => void, email: string }) {
   const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
-  }
-
-  const [email, setEmail] = useState("");
   async function sendVerificationEmail() {
-    setGreetMsg(await invoke("send_verification_email", { email }));
+    try {
+        await invoke("send_verification_email", { email });
+        setEmailSent(true);
+    } catch (e) {
+        setGreetMsg(e as string);
+    }
   }
 
   return (
@@ -40,4 +46,4 @@ function InputEmail() {
   );
 }
 
-export default AuthMenu();
+export default AuthMenu;
