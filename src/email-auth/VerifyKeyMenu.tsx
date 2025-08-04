@@ -1,8 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
-import "../App.css";
-import "nes.css/css/nes.min.css";
 import { useState } from "react";
 import { useAuth } from "./authcontext";
+import { Button, Card, Input } from 'pixel-retroui';
 
 function VerifyKeyMenu({ email }: { email: string }){
     const { login } = useAuth();
@@ -23,18 +22,18 @@ function VerifyKeyMenu({ email }: { email: string }){
     }
 
     return (
-        <div className="container">
-            <div className="nes-container with-title is-centered m-4 p-6">
-                <h2 className="title">Verify Key</h2>
+        <div className="flex items-center justify-center h-screen bg-white gap-8 text-center">
+            <Card className="flex items-center justify-center flex-col w-[70vw] h-[70vh] p-[1vh]" bg="#fefcd0">
+                <h2 className="text-2xl font-bold text-center mb-4">Welcome To Pokemon Arena</h2>
                 <div id="center-contents">
-                    <div className="nes-field">
-                        <label htmlFor="key_field">Key</label>
-                        <input type="text" id="key_field" className="nes-input" value={key} onChange={(e) => setKey(e.target.value)} placeholder="Key"></input>
-                    </div>
-                    <button type="button" className="nes-btn is-primary" onClick={verifyKey}>Verify</button>
-                    {error && <p className="nes-text is-error">{error}</p>}
+
+                    <label>Please enter the key sent to your email: {email}</label>
+                    <Input value={key} onChange={(e) => setKey(e.target.value)} placeholder="Key"></Input>
+
+                <Button onClick={verifyKey}>Submit</Button>
+                <p>{error}</p>
                 </div>
-            </div>
+            </Card>
         </div>
     );
 }

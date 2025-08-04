@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 use rand::Rng;
 use serde_json;
-use serde::{Deserialize};
+use serde::{Deserialize, Serialize};
 use std::fs;
  
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct PokemonStatBlock {
     pub number: String,
     #[serde(rename = "HP")]

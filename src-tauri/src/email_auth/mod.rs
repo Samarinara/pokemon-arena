@@ -68,7 +68,7 @@ pub fn verify_key(email: &str, key: &str) -> Result<bool, String> {
     let text = response.text().unwrap_or_else(|_| "<no response text>".to_string());
     println!("Verification response: status = {}, text = {}", status, text);
 
-    if status.is_success() {
+    if status.is_success() { 
         Ok(true)
     } else {
         Ok(false)
