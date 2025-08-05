@@ -901,7 +901,7 @@
     "Type1": "Electric",
     "Type2": "Steel"
   },
-  "Farfetch'd": {
+  "Farfetchd": {
     "number": "83",
     "HP": "52",
     "Attack": "90",
@@ -1330,7 +1330,7 @@
     "Type1": "Water",
     "Type2": "Psychic"
   },
-  "Mr. Mime": {
+  "Mr-Mime": {
     "number": "122",
     "HP": "40",
     "Attack": "45",

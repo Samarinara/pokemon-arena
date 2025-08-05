@@ -17,7 +17,7 @@ export default function HomeMenu(){
                 <h2 className="text-2xl font-bold text-center mb-4">Welcome To Pokemon Arena</h2>
                 <p>Please select an option below</p>
                 <div id="center-contents">
-                    <Button onClick={() => navigate("/pokedex")}>Pokedex</Button>
+                    <Button onClick={() => Nav("/pokedex")}>Pokedex</Button>
                 </div>
             </Card>
         </div>

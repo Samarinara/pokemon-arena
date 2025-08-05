@@ -2,9 +2,10 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider, useAuth } from './email-auth/authcontext';
 import { ProtectedRoute } from './email-auth/protected-route';
 
-import AuthMenu from './email-auth/AuthMenu';
+
 import Pokedex from './pokedex/Pokedex';
 import HomeMenu from './home/HomeMenu';
+import AuthMenu from './email-auth/AuthMenu';
 
 
 
@@ -35,7 +36,8 @@ function AppContent() {
                 <Route path="*" element={<Navigate to="/pokedex" replace />} />
               </>
             ) : (
-              <Route path="*" element={<HomeMenu />} />
+              <Route path="*" element={<AuthMenu />} />
+              
             )}
           </Routes>
         </BrowserRouter>
