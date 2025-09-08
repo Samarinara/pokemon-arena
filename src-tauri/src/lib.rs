@@ -1,3 +1,4 @@
+pub mod serde_handler;
 mod email_auth;
 mod pokemon;
 
@@ -32,8 +33,17 @@ fn get_pokemon_stat_block(name: &str) -> Option<pokemon::pokemon_indexer::Pokemo
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet, send_verification_email, verify_key, get_pokemon_by_number, get_pokemon_stat_block])
+        .plugin(tauri_plugin_websocket::init())
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            send_verification_email,
+            verify_key,
+            get_pokemon_by_number,
+            get_pokemon_stat_block,
+            
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
  

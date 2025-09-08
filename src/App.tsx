@@ -6,23 +6,33 @@ import { ProtectedRoute } from './email-auth/protected-route';
 import Pokedex from './pokedex/Pokedex';
 import HomeMenu from './home/HomeMenu';
 import AuthMenu from './email-auth/AuthMenu';
+import ServerIpMenu from './networking/ServerIpMenu';
 
 
+
+import { useWebSocket, WebSocketProvider } from './email-auth/WebSocketProvider';
 
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <WebSocketProvider>
+        <AppContent />
+      </WebSocketProvider>
     </AuthProvider>
   );
 }
 
 function AppContent() {
   const { user, loading } = useAuth();
+  const { serverIp, isConnected } = useWebSocket();
 
 
   if (loading) {
     return <div>Loading...</div>;
+  }
+
+  if (!serverIp || !isConnected) {
+    return <ServerIpMenu />;
   }
 
    return (
