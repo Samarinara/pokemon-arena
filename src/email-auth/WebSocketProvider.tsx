@@ -1,17 +1,5 @@
-import { createContext, useCallback, useContext, useEffect, useState, ReactNode } from "react";
-import { invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
+import { createContext, useCallback, useContext, useEffect, useState, ReactNode, useRef } from "react";
 import { useAuth } from "./authcontext";
-
-declare global {
-  interface Window {
-    __TAURI__?: {
-      core: {
-        invoke: typeof invoke;
-      }
-    };
-  }
-}
 
 interface WebSocketContextType {
   sendMessage: (message: string) => Promise<void>;
@@ -46,85 +34,87 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
   const [lastMessage, setLastMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { logout } = useAuth();
+  const webSocketRef = useRef<WebSocket | null>(null);
 
   const handleDisconnection = useCallback(() => {
-    console.log('🔌 WebSocket disconnected. Logging out and resetting.');
+    console.log('🔌 WebSocket disconnected.');
+    if (webSocketRef.current) {
+      webSocketRef.current.close();
+      webSocketRef.current = null;
+    }
     setIsConnected(false);
     setConnectionStatus('disconnected');
     logout();
-    setServerIp(null); // Navigate back to the IP menu
-  }, [logout]);
-
-  // Set up event listeners for WebSocket messages
-  useEffect(() => {
-    const setupListeners = async () => {
-      try {
-        const unlistenMessage = await listen('websocket-message', (event) => {
-          console.log('📨 Received WebSocket message:', event.payload);
-          setLastMessage(event.payload as string);
-        });
-
-        const unlistenDisconnect = await listen('websocket-disconnected', handleDisconnection);
-
-        return () => {
-          unlistenMessage();
-          unlistenDisconnect();
-        };
-      } catch (e) {
-        console.error('Failed to set up WebSocket event listeners:', e);
-      }
-    };
-
-    setupListeners();
-  }, [handleDisconnection]);
+    setServerIp(null); 
+  }, [logout, setServerIp]);
 
   const connect = useCallback(async () => {
     if (!serverIp) {
       setError("Server IP is not set");
       return;
     }
-    if (isConnected) return;
+    if (webSocketRef.current) return;
 
-    try {
-      setConnectionStatus('connecting');
-      setError(null);
-      const result = await invoke<string>("connect_to_server", { ip: serverIp });
-      console.log("✅ Connection result:", result);
+    setConnectionStatus('connecting');
+    setError(null);
+
+    const wsUrl = `ws://${serverIp}/ws`;
+    console.log(`Attempting to connect to ${wsUrl}`);
+    const ws = new WebSocket(wsUrl);
+    webSocketRef.current = ws;
+
+    ws.onopen = () => {
+      console.log("✅ WebSocket connection established");
       setIsConnected(true);
       setConnectionStatus('connected');
-    } catch (e) {
-      console.error("❌ Failed to connect via Rust backend:", e);
+    };
+
+    ws.onmessage = (event) => {
+      console.log('📨 Received WebSocket message:', event.data);
+      setLastMessage(event.data);
+    };
+
+    ws.onclose = (event) => {
+      console.log('❌ WebSocket connection closed:', event.code, event.reason);
+      setIsConnected(false);
+      setConnectionStatus('disconnected');
+      if (!event.wasClean) {
+        setError(`Connection closed unexpectedly: ${event.reason || 'Unknown error'}`);
+      }
+      webSocketRef.current = null;
+    };
+
+    ws.onerror = (event) => {
+      console.error("❌ WebSocket error:", event);
       setIsConnected(false);
       setConnectionStatus('error');
-      setError(e as string);
-    }
-  }, [serverIp, isConnected]);
+      setError("Failed to connect to the WebSocket server.");
+      webSocketRef.current = null;
+    };
+
+  }, [serverIp]);
 
   const disconnect = useCallback(async () => {
-    try {
-      await invoke<string>("disconnect");
-      handleDisconnection(); // Use our centralized handler
-    } catch (e) {
-      console.error("❌ Failed to disconnect:", e);
-      handleDisconnection(); // Still treat as a disconnection
+    if (webSocketRef.current) {
+      webSocketRef.current.close();
     }
-  }, [handleDisconnection]);
+  }, []);
 
   const sendMessage = useCallback(async (message: string): Promise<void> => {
-    if (!isConnected) {
+    if (!webSocketRef.current || webSocketRef.current.readyState !== WebSocket.OPEN) {
       const errorMsg = "Cannot send message, not connected.";
       console.warn(errorMsg);
       setError(errorMsg);
       throw new Error(errorMsg);
     }
     try {
-      await invoke<string>("send_websocket_message", { message });
+      webSocketRef.current.send(message);
     } catch (e) {
-      console.error("❌ Failed to send message via Rust backend:", e);
+      console.error("❌ Failed to send message:", e);
       setError(e as string);
       throw e;
     }
-  }, [isConnected]);
+  }, [setError]);
 
   // Auto-connect when serverIp is set
   useEffect(() => {
@@ -132,6 +122,15 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
       connect();
     }
   }, [serverIp, isConnected, connectionStatus, connect]);
+  
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (webSocketRef.current) {
+        webSocketRef.current.close();
+      }
+    };
+  }, []);
 
   const value: WebSocketContextType = {
     sendMessage,

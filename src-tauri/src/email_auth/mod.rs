@@ -5,7 +5,7 @@ use crate::pokemon::{pokemon_indexer};
 
 pub fn send_verification_email(email: &str) -> Result<(), String> {
     println!("Sending verification email to {}", email);
-    match send_email_to_server(email, "https://pokemon-arena.thescandalsthatwere.com/verify_email") {
+    match send_email_to_server(email, "http://127.0.0.1:8080/verify_email") {
         Ok(_) => {println!("Email sent successfully."); return Ok(())},
         Err(e) => {eprintln!("Failed to send email: {}", e); return Err(e)},
     }
