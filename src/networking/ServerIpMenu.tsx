@@ -7,7 +7,7 @@ interface ServerIpMenuProps {
 }
 
 export default function ServerIpMenu({ onConnectionSuccess }: ServerIpMenuProps) {
-  const [ip, setIp] = useState('127.0.0.1:8080');
+  const [ip, setIp] = useState('pokemon-arena.thescandalsthatwere.com');
   const { 
     setServerIp, 
     isConnected, 
