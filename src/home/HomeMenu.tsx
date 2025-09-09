@@ -23,8 +23,9 @@ export default function HomeMenu(){
                 <h2 className="text-2xl font-bold text-center mb-4">Welcome To Pokemon Arena</h2>
                 <p>Please select an option below</p>
                 <div id="center-contents">
-                    <Button onClick={() => Nav("/pokedex")}>Pokedex</Button>
-                    <Button onClick={handleSendMessage}>Send WebSocket Message</Button>
+                    {/* <Button onClick={() => Nav("/pokedex")}>Pokedex</Button>
+                    <Button onClick={handleSendMessage}>Send WebSocket Message</Button> */}
+                    <h1 className="text-2xl font-bold text-center mb-4">Congrats on connecting to the server! Soon there will be a whole game here so just sit tight</h1>
                 </div>
             </Card>
         </div>
