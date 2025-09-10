@@ -1,5 +1,4 @@
 import { createContext, useCallback, useContext, useEffect, useState, ReactNode, useRef } from "react";
-import { useAuth } from "./authcontext";
 
 interface WebSocketContextType {
   sendMessage: (message: string) => Promise<void>;
@@ -33,10 +32,10 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
   const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected' | 'error'>('disconnected');
   const [lastMessage, setLastMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const { logout } = useAuth();
-  const webSocketRef = useRef<WebSocket | null>(null);
+/*   const { logout } = useAuth();
+ */  const webSocketRef = useRef<WebSocket | null>(null);
 
-  const handleDisconnection = useCallback(() => {
+/*   const handleDisconnection = useCallback(() => {
     console.log('🔌 WebSocket disconnected.');
     if (webSocketRef.current) {
       webSocketRef.current.close();
@@ -46,7 +45,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
     setConnectionStatus('disconnected');
     logout();
     setServerIp(null); 
-  }, [logout, setServerIp]);
+  }, [logout, setServerIp]); */
 
   const connect = useCallback(async () => {
     if (!serverIp) {

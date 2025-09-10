@@ -49,11 +49,11 @@ fn generate_key() -> String {
     return (pkmn + " " + &pkmn2 + " " + &pkmn3).to_string()
 }
 
-#[derive(Serialize)]
+/* #[derive(Serialize)]
 struct VerifyPayload<'a> {
     email: &'a str,
     key: &'a str,
-}
+} */
 
 pub fn verify_key(email: &str, key: &str) -> Result<bool, String> {
     println!("Verifying key for {}: {}", email, key);

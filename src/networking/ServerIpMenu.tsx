@@ -18,6 +18,8 @@ export default function ServerIpMenu({ onConnectionSuccess }: ServerIpMenuProps)
     connect
   } = useWebSocket();
 
+  
+
   // Watch for successful connection
   useEffect(() => {
     if (isConnected && connectionStatus === 'connected' && onConnectionSuccess) {

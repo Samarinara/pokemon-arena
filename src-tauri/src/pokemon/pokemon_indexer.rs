@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use rand::Rng;
-use serde_json;
+/* use rand::Rng;
+ */use serde_json;
 use serde::{Deserialize, Serialize};
 use std::fs;
  
@@ -62,7 +62,7 @@ pub fn get_pokemon_stat_block(name: &str) -> Option<PokemonStatBlock> {
     let index = get_pokemon_stats_index();
     index.get(name).cloned()
 }
-
+/* 
 pub fn get_random_pokemon() -> String {
     // Try to load the Pokemon data, return a fallback if it fails
     let json_data = match fs::read_to_string("src/pokemon/pokemon_by_number.json") {
@@ -82,4 +82,4 @@ pub fn get_random_pokemon() -> String {
     let random_key = keys[rng.gen_range(0..keys.len())];
 
     return index.get(&random_key).unwrap().to_string();
-}
+} */
